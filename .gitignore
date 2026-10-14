@@ -1,0 +1,14 @@
+# Dependencias y builds
+node_modules/
+dist/
+
+# Datos generados en ejecución (descargas y cachés)
+backend/data/
+
+# Entornos y registros
+.env
+.env.*
+*.log
+
+# Historial local del editor
+.history/

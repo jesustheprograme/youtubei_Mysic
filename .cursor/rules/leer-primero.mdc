@@ -1,0 +1,27 @@
+---
+description: Lectura obligatoria antes de integrar Yotubei en Mysic
+alwaysApply: true
+---
+
+# Instrucciones obligatorias para la IA
+
+**Antes de ejecutar cualquier comando, leer cualquier otro archivo o proponer cualquier cambio, lee entero [`docs/IMPLEMENTACION_MYSIC.md`](docs/IMPLEMENTACION_MYSIC.md).**
+
+Tu primer mensaje al usuario debe empezar exactamente con:
+
+```
+He leído IMPLEMENTACION_MYSIC.md v1.0 (7 fases, 38 pasos).
+```
+
+seguido de un resumen de una frase por fase. Sin esa confirmación no hagas nada más.
+
+Reglas que nunca se rompen (detalle en la sección 1 del documento):
+
+1. El código de Yotubei se copia a Mysic **solo** con `node tools/migrar-a-mysic.mjs`. No lo reimplementes ni lo "mejores".
+2. No edites a mano `Backend/src/youtube/` ni `Frontend/src/features/youtube/` en Mysic: se regeneran.
+3. Sin autenticación en las rutas `/api/youtube`.
+4. Solo se editan los archivos de Mysic listados en la regla R6.
+5. Fases en orden; si una verificación falla, detente y muestra la salida.
+6. Nada de push ni PR sin que el usuario lo pida.
+
+Si trabajas en Yotubei mismo (no en Mysic), la estructura y la API están en [`README.md`](README.md).
