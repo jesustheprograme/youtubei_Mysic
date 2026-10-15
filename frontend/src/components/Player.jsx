@@ -1,6 +1,6 @@
 // frontend/src/components/Player.jsx
 // Barra de reproducción fija: canción actual, controles, progreso y volumen.
-// Contiene el único elemento <audio> de la aplicación.
+// Usa <audio> para descargas y YouTube IFrame Player para canciones en línea.
 import { formatTime } from '../lib/format.js';
 import { Cover } from './Cover.jsx';
 import { MuteIcon, NextIcon, PauseIcon, PlayIcon, PrevIcon, Spinner, VolumeIcon } from './icons.jsx';
@@ -8,6 +8,8 @@ import { MuteIcon, NextIcon, PauseIcon, PlayIcon, PrevIcon, Spinner, VolumeIcon 
 export function Player({ player, onOpenArtist }) {
   const {
     audioProps,
+    iframeHostRef,
+    isLocal,
     currentSong,
     hasNext,
     isPlaying,
@@ -30,6 +32,9 @@ export function Player({ player, onOpenArtist }) {
       <audio {...audioProps} />
 
       <footer className={`player${currentSong ? ' player--active' : ''}`}>
+        <div className={`player-youtube${currentSong && !isLocal ? ' player-youtube--active' : ''}`}>
+          <div ref={iframeHostRef} />
+        </div>
         <div className="player-track">
           {currentSong ? (
             <>
