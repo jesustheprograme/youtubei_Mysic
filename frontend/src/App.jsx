@@ -53,19 +53,35 @@ function App({ active = true, PlayerPanelComponent, VolumeControlComponent }) {
     <div className="yt-app">
     <div className="app">
       <main className={`content${view.kind === 'artist' ? ' content--wide' : ''}`}>
-        <h1 className="title">YouTube Music Player</h1>
+        {view.kind === 'search' && (
+          <header className="browse-intro">
+            <div>
+              <p className="browse-intro__eyebrow">Catálogo en línea</p>
+              <h1 className="browse-intro__title">YouTube Music</h1>
+              <p className="browse-intro__copy">Encuentra música y reprodúcela sin salir de Mysic.</p>
+            </div>
+            <span className="browse-intro__status">
+              <span aria-hidden="true" /> Disponible
+            </span>
+          </header>
+        )}
 
-        <SearchBox
-          value={browse.query}
-          onChange={browse.setQuery}
-          onSubmit={(text) => browse.runSearch(text, browse.searchType)}
-          onPickEntity={handlePickEntity}
-          history={browse.history}
-          onRemoveHistory={browse.removeFromHistory}
-          loading={loading}
-        />
+        {view.kind === 'search' && (
+          <div className="search-stage">
+            <SearchBox
+              value={browse.query}
+              onChange={browse.setQuery}
+              onSubmit={(text) => browse.runSearch(text, browse.searchType)}
+              onPickEntity={handlePickEntity}
+              history={browse.history}
+              onRemoveHistory={browse.removeFromHistory}
+              loading={loading}
+            />
+          </div>
+        )}
 
-        <div className="tabs" role="tablist">
+        {(view.kind === 'search' || view.kind === 'downloads') && (
+        <div className="tabs" role="tablist" aria-label="Tipo de contenido">
           {SEARCH_TABS.map((tab) => {
             const isActive = view.kind !== 'downloads' && browse.searchType === tab.type;
             return (
@@ -91,6 +107,7 @@ function App({ active = true, PlayerPanelComponent, VolumeControlComponent }) {
             {dl.activeJobs > 0 && <Spinner small />}
           </button>
         </div>
+        )}
 
         {!dl.online && (
           <p className="offline-banner">
@@ -105,7 +122,7 @@ function App({ active = true, PlayerPanelComponent, VolumeControlComponent }) {
         )}
 
         {error && <p className="message error">{error}</p>}
-        {loading && view.kind !== 'search' && <p className="message">Cargando...</p>}
+        {loading && view.kind !== 'search' && <p className="message message--surface">Cargando contenido…</p>}
 
         {view.kind === 'search' && (
           <SearchResults
