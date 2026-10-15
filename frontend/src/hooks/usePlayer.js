@@ -31,6 +31,8 @@ export function usePlayer({ isDownloaded, enabled = true }) {
   const audioRef = useRef(null);
   const iframeHostRef = useRef(null);
   const youtubeRef = useRef(null);
+  const youtubeCreatingRef = useRef(false);
+  const youtubeCreatedRef = useRef(null);
   const youtubeReadyRef = useRef(false);
   const pendingVideoIdRef = useRef(null);
   const nextRef = useRef(() => {});
@@ -86,7 +88,11 @@ export function usePlayer({ isDownloaded, enabled = true }) {
       return;
     }
     const player = youtubeRef.current;
-    if (!player) return;
+    if (!player?.playVideo || !player?.pauseVideo) {
+      pendingVideoIdRef.current = currentSong.id;
+      setIsBuffering(true);
+      return;
+    }
     if (player.getPlayerState?.() === window.YT?.PlayerState?.PLAYING) player.pauseVideo();
     else player.playVideo();
   }, [currentSong, isLocal]);
@@ -108,9 +114,12 @@ export function usePlayer({ isDownloaded, enabled = true }) {
     setIsBuffering(true);
     loadIframeApi().then((YT) => {
       if (cancelled || !iframeHostRef.current) return;
-      if (!youtubeRef.current?.loadVideoById) {
-        pendingVideoIdRef.current = videoId;
-        youtubeRef.current = new YT.Player(iframeHostRef.current, {
+      pendingVideoIdRef.current = videoId;
+      if (youtubeRef.current?.loadVideoById && youtubeReadyRef.current) {
+        youtubeRef.current.loadVideoById(videoId);
+      } else if (!youtubeCreatingRef.current) {
+        youtubeCreatingRef.current = true;
+        youtubeCreatedRef.current = new YT.Player(iframeHostRef.current, {
           width: 320,
           height: 200,
           videoId,
@@ -118,12 +127,14 @@ export function usePlayer({ isDownloaded, enabled = true }) {
           playerVars: { autoplay: 1, controls: 0, playsinline: 1, rel: 0 },
           events: {
             onReady: (event) => {
+              youtubeRef.current = event.target;
               youtubeReadyRef.current = true;
+              youtubeCreatingRef.current = false;
               event.target.setVolume(Math.round(volumeRef.current * 100));
               const requestedVideoId = pendingVideoIdRef.current;
               pendingVideoIdRef.current = null;
-              if (requestedVideoId && requestedVideoId !== videoId) event.target.loadVideoById(requestedVideoId);
-              else event.target.playVideo();
+              if (requestedVideoId && requestedVideoId !== videoId) event.target.loadVideoById?.(requestedVideoId);
+              else event.target.playVideo?.();
             },
             onStateChange: (event) => {
               if (event.data === YT.PlayerState.PLAYING) {
@@ -138,14 +149,14 @@ export function usePlayer({ isDownloaded, enabled = true }) {
               }
             },
             onError: () => {
+              youtubeCreatingRef.current = false;
               setIsPlaying(false);
               setIsBuffering(false);
               setPlayerError('YouTube no permite reproducir esta canción incrustada.');
             },
           },
         });
-      } else if (youtubeReadyRef.current) youtubeRef.current.loadVideoById(videoId);
-      else pendingVideoIdRef.current = videoId;
+      }
     }).catch((error) => {
       setIsBuffering(false);
       setPlayerError(error.message);
@@ -154,9 +165,11 @@ export function usePlayer({ isDownloaded, enabled = true }) {
   }, [videoId, isLocal]);
 
   useEffect(() => () => {
-    youtubeRef.current?.destroy?.();
+    youtubeCreatedRef.current?.destroy?.();
+    youtubeCreatedRef.current = null;
     youtubeRef.current = null;
     youtubeReadyRef.current = false;
+    youtubeCreatingRef.current = false;
   }, []);
 
   useEffect(() => {
