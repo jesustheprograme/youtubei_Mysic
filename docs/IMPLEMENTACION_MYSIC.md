@@ -103,7 +103,7 @@ No lo redescubras ni lo "simplifiques":
 
 - Backend: `.js` → `.mjs` y reescritura de todas las importaciones relativas (`from`, `import()`, `new URL()`); `config` guarda los datos en `Backend/data/youtube` (variable opcional `YOUTUBE_DATA_DIR`).
 - Frontend: `App` → `YoutubeView`, sin `<h1>` propio, con los 9 imports de estilos; `lib/api.js` toma `API_URL` de Mysic y cuelga de `/youtube`.
-- CSS: cada selector queda prefijado con `.yt-app`, `:root` pasa a `.yt-app`, se eliminan las reglas de `body`, los `@keyframes` se renombran con `yt-`, y la barra del reproductor pasa de `position: fixed` a `sticky` para no tapar el `PlayerDock`.
+- CSS: cada selector queda prefijado con `.yt-app`, `:root` pasa a `.yt-app`, se eliminan las reglas de `body` y los `@keyframes` se renombran con `yt-`. El reproductor se mantiene como panel lateral derecho y vuelve a ser una barra inferior en pantallas estrechas.
 
 ---
 

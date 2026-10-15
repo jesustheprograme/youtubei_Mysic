@@ -1,16 +1,15 @@
 /* Estructura general, título, pestañas, mensajes y enlaces */
 .app {
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
 }
 
 .content {
   width: 100%;
   max-width: 760px;
   margin: 0 auto;
-  padding: 24px 16px calc(var(--player-height) + 32px);
-  flex: 1;
+  padding: 24px 16px 48px;
   transition: max-width 0.25s ease;
 }
 
@@ -134,6 +133,16 @@
   color: #ffd166;
   background: rgba(255, 209, 102, 0.12);
   border: 1px solid rgba(255, 209, 102, 0.3);
+}
+
+@media (max-width: 900px) {
+  .app {
+    display: block;
+  }
+
+  .content {
+    padding-bottom: calc(var(--player-height) + 32px);
+  }
 }
 
 @media (max-width: 640px) {

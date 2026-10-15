@@ -1,18 +1,21 @@
-/* Barra de reproducción fija (components/Player.jsx) */
+/* Panel de reproducción lateral (components/Player.jsx) */
 .player {
-  position: fixed;
-  left: 0;
+  position: sticky;
+  top: 0;
   right: 0;
-  bottom: 0;
-  height: var(--player-height);
-  display: grid;
-  grid-template-columns: 1fr minmax(0, 2fr) 1fr;
-  align-items: center;
-  gap: 16px;
-  padding: 0 20px;
+  grid-column: 2;
+  grid-row: 1;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 24px;
+  padding: 28px 22px;
   background: #181818;
-  border-top: 1px solid #2a2a2a;
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
+  border-left: 1px solid #2a2a2a;
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.3);
 }
 
 .player-track {
@@ -23,9 +26,9 @@
 }
 
 .player-cover {
-  width: 56px;
-  height: 56px;
-  border-radius: 4px;
+  width: 72px;
+  height: 72px;
+  border-radius: 8px;
   object-fit: cover;
   background: #333;
   flex-shrink: 0;
@@ -60,6 +63,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  flex: 1;
   gap: 6px;
   min-width: 0;
 }
@@ -102,7 +107,7 @@
   align-items: center;
   gap: 10px;
   width: 100%;
-  max-width: 520px;
+  max-width: 100%;
 }
 
 .time {
@@ -124,7 +129,7 @@
 .player-volume {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
   gap: 6px;
 }
 
@@ -191,17 +196,28 @@
   opacity: 1;
 }
 
-/* Móvil */
-@media (max-width: 640px) {
+/* En pantallas estrechas vuelve a ser una barra inferior compacta. */
+@media (max-width: 900px) {
   :root {
     --player-height: 120px;
   }
 
   .player {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: auto;
+    bottom: 0;
+    width: 100%;
+    height: var(--player-height);
+    display: grid;
     grid-template-columns: 1fr auto;
     grid-template-rows: auto auto;
     gap: 6px 12px;
     padding: 10px 14px;
+    border-top: 1px solid #2a2a2a;
+    border-left: 0;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
   }
 
   .player-track {
@@ -219,6 +235,7 @@
   }
 
   .player-center {
+    flex: initial;
     grid-column: 1 / -1;
     grid-row: 2;
   }

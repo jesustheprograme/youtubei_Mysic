@@ -196,11 +196,6 @@ function migrateCss(file, code) {
   const keyframes = new Set();
   let css = scopeCss(code, keyframes);
   css = renameAnimations(css, keyframes);
-  if (path.basename(file) === 'player.css') {
-    // Dentro de Mysic la barra de Yotubei no puede ser fija a la ventana (taparía el PlayerDock):
-    // queda pegada al fondo del contenedor con scroll de la sección.
-    css = mustReplace(css, `${SCOPE} .player {\n  position: fixed;`, `${SCOPE} .player {\n  position: sticky;`, file);
-  }
   return css;
 }
 
