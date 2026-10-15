@@ -28,7 +28,9 @@
 .player-youtube {
   display: none;
   width: 100%;
+  aspect-ratio: 1;
   min-height: 200px;
+  position: relative;
   overflow: hidden;
   border-radius: 10px;
   background: #000;
@@ -38,10 +40,24 @@
   display: block;
 }
 
-.player-youtube iframe {
-  display: block;
+.player-artwork {
   width: 100%;
-  min-width: 200px;
+  height: 100%;
+  object-fit: cover;
+}
+
+.player-youtube-engine {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  left: -10000px;
+  top: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.player-youtube-engine iframe {
+  width: 200px;
   height: 200px;
   border: 0;
 }
@@ -252,6 +268,10 @@
     height: 200px;
     right: 12px;
     bottom: calc(100% + 8px);
+  }
+
+  .player-artwork {
+    border-radius: 10px;
   }
 
   .player-volume {
