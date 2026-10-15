@@ -110,8 +110,6 @@ export function usePlayer({ isDownloaded, enabled = true }) {
   useEffect(() => {
     if (!videoId || isLocal) return undefined;
     let cancelled = false;
-    setPlayerError('');
-    setIsBuffering(true);
     loadIframeApi().then((YT) => {
       if (cancelled || !iframeHostRef.current) return;
       pendingVideoIdRef.current = videoId;
