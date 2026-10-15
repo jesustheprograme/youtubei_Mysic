@@ -172,10 +172,10 @@ cd ../Mysic/Backend && npm install
 ✅ Verificación:
 
 ```bash
-node -e "for (const d of ['youtubei.js','bgutils-js','jsdom','sharp']) require.resolve(d) && console.log(d, 'ok')"
+node --input-type=module -e "for (const d of ['youtubei.js','bgutils-js/botguard','bgutils-js/webpo','bgutils-js/utils','jsdom','sharp']) import.meta.resolve(d) && console.log(d, 'ok')"
 ```
 
-imprime las cuatro líneas `ok`. (`sharp` descarga un binario nativo; si falla en Windows, ver [Problemas conocidos](#problemas-conocidos).)
+imprime las seis líneas `ok`. (`sharp` descarga un binario nativo; si falla en Windows, ver [Problemas conocidos](#problemas-conocidos).)
 
 **Paso 2.4 — Sintaxis del backend copiado.**
 
