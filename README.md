@@ -103,6 +103,8 @@ Yotubei/
 ## Cómo funciona el audio
 
 1. `GET /api/search?q=...&type=all|song|artist|album` busca en YouTube Music. Con `all` (por defecto en la interfaz) devuelve el resultado principal más canciones, artistas y álbumes; con un filtro devuelve solo esa lista.
+   - La vista `Todo` pinta primero la respuesta general y completa canciones, artistas y álbumes de forma progresiva, sin bloquear el primer resultado visual.
+   - Las consultas se guardan en `data/cache/search/`: durante 30 minutos se sirven directamente y, hasta 24 horas después, se devuelve el valor anterior mientras se actualiza en segundo plano. La caché sobrevive a los reinicios.
    - `GET /api/suggest?q=...` devuelve sugerencias de autocompletado y entidades directas mientras se escribe. Se cachean 5 minutos.
    - `GET /api/artist/:id` devuelve la página del artista: canciones destacadas, estanterías de álbumes y sencillos, y `images` con hasta 3 fotos de YouTube.
    - `GET /api/artist/:id/images` devuelve hasta 5 imágenes distintas del artista agregando YouTube (cabecera, avatar y fotogramas de sus vídeos y actuaciones en directo; nunca el banner), Discogs (localizado vía MusicBrainz) y Deezer. Las que son la misma foto recortada o reescalada se descartan comparándolas visualmente (`services/imageSimilarity.js`, en paralelo en varios hilos con `services/similarityPool.js`). Cada imagen trae `focus` (punto de interés en %) para encuadrarla en el panel vertical. Caché de 7 días.

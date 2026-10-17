@@ -5,7 +5,7 @@
 // archivos propios de Mysic salvo Backend/package.json y Backend/.gitignore.
 //
 // Uso:
-//   node tools/migrar-a-mysic.mjs --mysic <ruta del repo Mysic> [--dry-run] [--force]
+//   node tools/migrar-a-mysic.mjs --mysic <ruta del repo Mysic> [--dry-run] [--force] [--only rutas]
 //
 // Resultado:
 //   <Mysic>/Backend/src/youtube/**          backend de Yotubei en ESM (.mjs)
@@ -28,9 +28,10 @@ const option = (name) => {
 const mysicRoot = option('--mysic');
 const dryRun = flag('--dry-run');
 const force = flag('--force');
+const only = new Set((option('--only') || '').split(',').map((value) => value.trim()).filter(Boolean));
 
 if (!mysicRoot) {
-  console.error('Uso: node tools/migrar-a-mysic.mjs --mysic <ruta del repo Mysic> [--dry-run] [--force]');
+  console.error('Uso: node tools/migrar-a-mysic.mjs --mysic <ruta del repo Mysic> [--dry-run] [--force] [--only rutas]');
   process.exit(1);
 }
 const MYSIC = path.resolve(mysicRoot);
@@ -76,6 +77,10 @@ function mustReplace(content, from, to, where) {
   return content.replace(from, to);
 }
 
+function selected(file) {
+  return only.size === 0 || only.has(file.split(path.sep).join('/'));
+}
+
 /* ---------- backend: .js -> .mjs ---------- */
 // Reescribe especificadores relativos que terminan en .js: import/export ... from, import(), new URL()
 function rewriteRelativeImports(code) {
@@ -86,10 +91,11 @@ function rewriteRelativeImports(code) {
 }
 
 function migrateBackend() {
-  if (force && !dryRun) fs.rmSync(BACKEND_DEST, { recursive: true, force: true });
+  if (force && only.size === 0 && !dryRun) fs.rmSync(BACKEND_DEST, { recursive: true, force: true });
   for (const file of listFiles(BACKEND_SRC)) {
     const rel = path.relative(BACKEND_SRC, file);
     if (rel === 'server.js') continue; // Mysic tiene su propio servidor
+    if (!selected(`backend/src/${rel}`)) continue;
     let code = readText(file);
     code = rewriteRelativeImports(code);
     if (rel === 'config.js') {
@@ -201,7 +207,7 @@ function migrateCss(file, code) {
 
 /* ---------- frontend ---------- */
 function migrateFrontend() {
-  if (force && !dryRun) fs.rmSync(FRONTEND_DEST, { recursive: true, force: true });
+  if (force && only.size === 0 && !dryRun) fs.rmSync(FRONTEND_DEST, { recursive: true, force: true });
 
   // Orden de las hojas de estilo, tomado de main.jsx
   const mainJsx = readText(path.join(FRONTEND_SRC, 'main.jsx'));
@@ -211,6 +217,7 @@ function migrateFrontend() {
   for (const file of listFiles(FRONTEND_SRC)) {
     const rel = path.relative(FRONTEND_SRC, file).split(path.sep).join('/');
     if (rel === 'main.jsx') continue;
+    if (!selected(`frontend/src/${rel}`)) continue;
     let code = readText(file);
     let destRel = rel;
 
@@ -258,9 +265,12 @@ function updateBackendPackage() {
       added.push(`${dep}@${yotubei.dependencies[dep]}`);
     }
   }
+  const searchCacheTest = 'src/youtube/utils/persistentSearchCache.test.mjs';
+  const testAdded = Boolean(pkg.scripts?.test && !pkg.scripts.test.includes(searchCacheTest));
+  if (testAdded) pkg.scripts.test += ` ${searchCacheTest}`;
   pkg.dependencies = Object.fromEntries(Object.entries(pkg.dependencies).sort(([a], [b]) => a.localeCompare(b)));
-  if (added.length) write(file, `${JSON.stringify(pkg, null, 2)}\n`);
-  return added;
+  if (added.length || testAdded) write(file, `${JSON.stringify(pkg, null, 2)}\n`);
+  return { added, testAdded };
 }
 
 function updateBackendGitignore() {
@@ -275,12 +285,15 @@ function updateBackendGitignore() {
 try {
   migrateBackend();
   migrateFrontend();
-  const added = updateBackendPackage();
+  const packageChanges = updateBackendPackage();
   const gitignore = updateBackendGitignore();
 
   console.log(`${dryRun ? '[simulación] ' : ''}Archivos escritos en ${MYSIC}:`);
   for (const f of written) console.log(`  ${f}`);
-  console.log(added.length ? `Dependencias añadidas a Backend/package.json: ${added.join(', ')}` : 'Dependencias ya presentes.');
+  console.log(packageChanges.added.length
+    ? `Dependencias añadidas a Backend/package.json: ${packageChanges.added.join(', ')}`
+    : 'Dependencias ya presentes.');
+  if (packageChanges.testAdded) console.log('Backend/package.json: añadida la prueba de caché persistente.');
   console.log(gitignore ? 'Backend/.gitignore: añadido data/youtube/' : 'Backend/.gitignore ya ignoraba data/youtube/');
   console.log('\nSiguiente: ejecuta "npm install" en Backend y continúa con la fase 3 de docs/IMPLEMENTACION_MYSIC.md.');
 } catch (error) {
