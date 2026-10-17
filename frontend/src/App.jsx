@@ -80,7 +80,7 @@ function App({ active = true, PlayerPanelComponent, VolumeControlComponent }) {
           </div>
         )}
 
-        {(view.kind === 'search' || view.kind === 'downloads') && (
+        {view.kind === 'search' && (
         <div className="tabs" role="tablist" aria-label="Tipo de contenido">
           {SEARCH_TABS.map((tab) => {
             const isActive = view.kind !== 'downloads' && browse.searchType === tab.type;
